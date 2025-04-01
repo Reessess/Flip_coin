@@ -1,36 +1,56 @@
-import 'package:flutter/material.dart';
 import 'dart:math';
+import 'package:flutter/material.dart';
 
 void main() {
-  runApp(CoinFlipApp());
+  runApp(const MyApp());
 }
 
-class CoinFlipApp extends StatelessWidget {
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: CoinFlipScreen(),
+      home: CoinFlip(),
     );
   }
 }
 
-class CoinFlipScreen extends StatefulWidget {
+class CoinFlip extends StatefulWidget {
+  const CoinFlip({super.key});
+
   @override
-  _CoinFlipScreenState createState() => _CoinFlipScreenState();
+  _CoinFlipState createState() => _CoinFlipState();
 }
 
-class _CoinFlipScreenState extends State<CoinFlipScreen> with SingleTickerProviderStateMixin {
-  String _coinImage = 'assets/coin_heads.png';
-  String _resultText = 'Heads!';
+class _CoinFlipState extends State<CoinFlip> with SingleTickerProviderStateMixin {
+  int coinSide = 0; // 0 = Heads, 1 = Tails
   late AnimationController _controller;
   late Animation<double> _animation;
+
+  // Function to flip the coin
+  void flipCoin() {
+    _controller.reset();
+    _controller.forward().then((_) {
+      setState(() {
+        coinSide = Random().nextInt(2); // Random number between 0 and 1
+      });
+    });
+
+    // Print the result in the terminal
+    if (coinSide == 0) {
+      print("Heads!");
+    } else {
+      print("Tails!");
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: Duration(seconds: 1),
+      duration: const Duration(seconds: 1),
       vsync: this,
     );
     _animation = Tween<double>(begin: 0, end: 2 * pi).animate(_controller);
@@ -42,26 +62,15 @@ class _CoinFlipScreenState extends State<CoinFlipScreen> with SingleTickerProvid
     super.dispose();
   }
 
-  void flipCoin() {
-    _controller.reset();
-    _controller.forward().then((_) {
-      setState(() {
-        bool isHeads = Random().nextBool();
-        _coinImage = isHeads ? 'assets/coin_heads.png' : 'assets/coin_tails.png';
-        _resultText = isHeads ? 'Heads!' : 'Tails!';
-        print(_resultText); // Print result to terminal
-      });
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Flip Coin App')),
+      appBar: AppBar(title: const Text("Coin Flip")),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Animated rotation of the coin
             AnimatedBuilder(
               animation: _animation,
               builder: (context, child) {
@@ -69,22 +78,18 @@ class _CoinFlipScreenState extends State<CoinFlipScreen> with SingleTickerProvid
                   alignment: Alignment.center,
                   transform: Matrix4.rotationY(_animation.value),
                   child: Image.asset(
-                    _coinImage,
+                    coinSide == 0 ? 'assets/coin_heads.png' : 'assets/coin_tails.png',
                     width: 150,
                     height: 150,
                   ),
                 );
               },
             ),
-            SizedBox(height: 20),
-            Text(
-              _resultText,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
+            // Button to flip the coin
             ElevatedButton(
               onPressed: flipCoin,
-              child: Text('Flip Coin'),
+              child: const Text("Flip Coin"),
             ),
           ],
         ),
