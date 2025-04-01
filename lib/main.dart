@@ -31,19 +31,19 @@ class _CoinFlipState extends State<CoinFlip> with SingleTickerProviderStateMixin
 
   // Function to flip the coin
   void flipCoin() {
+    // Reset the animation and start flipping
     _controller.reset();
     _controller.forward().then((_) {
       setState(() {
         coinSide = Random().nextInt(2); // Random number between 0 and 1
       });
+      // Print the result after updating the coinSide
+      if (coinSide == 0) {
+        print("Heads!"); // Heads when coinSide is 0
+      } else {
+        print("Tails!"); // Tails when coinSide is 1
+      }
     });
-
-    // Print the result in the terminal
-    if (coinSide == 0) {
-      print("Heads!");
-    } else {
-      print("Tails!");
-    }
   }
 
   @override
